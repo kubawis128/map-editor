@@ -2,7 +2,7 @@
 bl_info = {
   "name":         "Radix Map Editor",
   "author":       "Henry Hirsch, Julian Thijssen, Juraj Oravec",
-  "blender":      (2, 6, 3),
+  "blender":      (2, 83, 0),
   "version":      (1, 0, 0),
   "location":     "File > Import-Export",
   "description":  "Module for loading, editing and saving Radix maps.",
@@ -23,12 +23,14 @@ exec(environmentBootstrapCode)
 import bpy
 blender = bpy
 from .RadixMenu import RadixMenu
+from bpy.utils import register_class
 
 def addMenuItems():
   menu = RadixMenu()
   types = blender.types
-  types.INFO_MT_file_export.append(menu.getExportMenuOperator)
-  types.INFO_MT_file_import.append(menu.getImportMenuOperator)
+  types.VIEW3D_MT_mesh_add.append(menu.getExportMenuOperator)
+  #types.INFO_MT_file_export.append(menu.getExportMenuOperator)
+  #types.INFO_MT_file_import.append(menu.getImportMenuOperator)
   types.INFO_MT_add.prepend(menu.addMainMenu)
 
 def removeMenuItems():
@@ -39,8 +41,6 @@ def removeMenuItems():
   types.INFO_MT_add.remove(menu.addMainMenu)
 
 def register():
-  blender.utils.register_module(__name__)
-
   types.setProperties()
   MPTypes.initProperties()
   addMenuItems()
@@ -64,8 +64,9 @@ def register():
 
 
 def unregister():
-  blender.utils.unregister_module(__name__)
-
+  from bpy.utils import unregister_class
+  for cls in reversed(classes):
+    unregister_class(cls)
   OperatorManager.removeOperators()
 
   MaterialManager.radixMaterialReset()
